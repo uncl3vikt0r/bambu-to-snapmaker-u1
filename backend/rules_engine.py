@@ -104,7 +104,6 @@ def load_rules(rules_dir: Path) -> list[RuleDefinition]:
 def dump_rule(rule: RuleDefinition) -> str:
     """Serialise a rule back to YAML (for the web editor)."""
     payload = rule.model_dump(exclude={"source_path"})
-    # Drop explicit nulls from ``match`` so saved files stay tidy.
     match = {k: v for k, v in (payload.get("match") or {}).items() if v is not None}
     payload["match"] = match
     return yaml.safe_dump(payload, sort_keys=False, allow_unicode=True)

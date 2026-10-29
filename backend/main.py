@@ -45,7 +45,8 @@ import telemetry
 from converter import convert, is_painted_model
 from diff_reporter import summarise
 from model_settings import MetadataRewriteError
-from models import ConversionSettings
+from models import ConversionSettings, DiffReport
+from core_models import ConversionSettings as CoreConversionSettings
 from placement import decode_model_xml, is_multiplate
 from profile_loader import (
     ProfileLoadError,
@@ -57,6 +58,7 @@ from profile_loader import (
     resolve_profile,
     suggest_profile,
 )
+from models import RuleDefinition
 from rules_engine import (
     FilamentContext,
     RuleLoadError,
@@ -351,7 +353,14 @@ async def api_test_match(file: UploadFile = File(...)) -> dict[str, Any]:
         except ProfileLoadError as err:
             raise HTTPException(400, detail=str(err)) from err
         ctx = FilamentContext.from_settings(cfg)
-    rules = load_rules(RULES_DIR)
+    rules = [
+        RuleDefinition(
+            name=rule["name"], description=rule.get("description", ""),
+            match=rule.get("match") or {}, overrides=rule.get("overrides") or {},
+            priority=rule.get("priority", 0), enabled=rule.get("enabled", True),
+        )
+        for rule in (r.model_dump(exclude={"source_path"}) for r in load_rules(RULES_DIR))
+    ]
     hits = find_matches(rules, ctx)
     return {
         "context": {
@@ -551,7 +560,14 @@ async def api_convert(
         insert_swap_pauses=insert_swap_pauses.lower() == "true",
     )
 
-    rules = load_rules(RULES_DIR)
+    rules = [
+        RuleDefinition(
+            name=r.name, description=r.description,
+            match=r.match.model_dump(exclude_none=True), overrides=r.overrides,
+            priority=r.priority, enabled=r.enabled,
+        )
+        for r in load_rules(RULES_DIR)
+    ]
 
     _src_kb = src_path.stat().st_size / 1024
     _is_painted = _has_vlh = _already_converted = False
@@ -572,7 +588,7 @@ async def api_convert(
             source_path=src_path,
             reference_path=Path(descriptor.path),
             output_path=out_path,
-            settings=settings,
+            settings=settings.to_core(),
             rules=rules,
         )
     except ProfileLoadError as err:
@@ -648,7 +664,7 @@ async def api_convert(
     )
 
     diff_payload = {
-        "report": result.diff.model_dump(),
+        "report": DiffReport(**result.diff.model_dump()).model_dump(),
         "sections": summarise(result.diff),
         "counts": _counts,
     }
@@ -722,14 +738,21 @@ async def api_convert_bambu(
         insert_swap_pauses=insert_swap_pauses.lower() == "true",
     )
 
-    rules = load_rules(RULES_DIR)
+    rules = [
+        RuleDefinition(
+            name=r.name, description=r.description,
+            match=r.match.model_dump(exclude_none=True), overrides=r.overrides,
+            priority=r.priority, enabled=r.enabled,
+        )
+        for r in load_rules(RULES_DIR)
+    ]
 
     try:
         result = convert(
             source_path=src_path,
             reference_path=Path(descriptor.path),
             output_path=out_path,
-            settings=settings,
+            settings=settings.to_core(),
             rules=rules,
             preserve_bambu_metadata=True,
         )
@@ -770,7 +793,7 @@ async def api_convert_bambu(
         raise HTTPException(500, detail="conversion failed") from err
 
     diff_payload = {
-        "report": result.diff.model_dump(),
+        "report": DiffReport(**result.diff.model_dump()).model_dump(),
         "sections": summarise(result.diff),
         "counts": result.diff.counts(),
     }

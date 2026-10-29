@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from models import GcodeSwapEvent
+from core_models import GcodeSwapEvent
 
 # Keys whose contents are wholesale replaced from the reference profile.
 # Both ``layer_change_gcode`` (fires after a layer) and

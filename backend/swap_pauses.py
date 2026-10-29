@@ -22,7 +22,7 @@ from __future__ import annotations
 import logging
 from xml.etree import ElementTree as ET
 
-from models import SwapInstruction
+from core_models import SwapInstruction
 
 _N_PHYSICAL = 4
 _FALLBACK_LAYER_HEIGHT = 0.2

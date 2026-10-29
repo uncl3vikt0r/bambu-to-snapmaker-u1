@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from models import (
+from core_models import (
     ClampEvent,
     DiffReport,
     GcodeSwapEvent,

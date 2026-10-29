@@ -14,7 +14,7 @@ import zipfile
 import zlib
 from pathlib import Path
 
-from models import ProfileDescriptor
+from core_models import ProfileDescriptor
 
 PROJECT_SETTINGS = "Metadata/project_settings.config"
 MODEL_SETTINGS = "Metadata/model_settings.config"

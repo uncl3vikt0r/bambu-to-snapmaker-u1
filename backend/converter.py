@@ -44,7 +44,7 @@ from metadata_helpers import (
     rewrite_slice_info,
     translate_prusa_mmu_paint,
 )
-from models import ConversionSettings, DiffReport, RuleDefinition, SlotRemapEvent
+from core_models import ConversionSettings, DiffReport, RuleDefinition, SlotRemapEvent
 from model_settings import MetadataRewriteError, VALUE_REMAP as _VALUE_REMAP, rewrite_model_settings as _rewrite_model_settings
 from paint_remap import remap_paint_color
 from prusa_parts import import_prusa_parts
@@ -173,6 +173,10 @@ def convert(
     Bambu-to-Bambu cross-printer conversion where those files remain valid.
     """
     t0 = time.monotonic()
+    if isinstance(settings, dict):
+        settings = ConversionSettings(**settings)
+    elif not isinstance(settings, ConversionSettings):
+        settings = ConversionSettings(**settings.model_dump())
     src_size = source_path.stat().st_size
     log.info(
         "START  %s  (%.1f KB)  profile=%s  rules=%s  clamp=%s  painting=%s",

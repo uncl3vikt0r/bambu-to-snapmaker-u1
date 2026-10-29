@@ -183,6 +183,10 @@ off; the CSP and privacy page adapt automatically to whatever you enable.
 
 ## Development
 
+### OrcaSlicer Nightly plugin
+
+An offline, single-file Script plugin is available under [`plugin/`](plugin/README.md). Build it with `python plugin/snapmaker_u1_converter/build_plugin.py`, then install the generated `.py` from **File → Plugins → Install local plugin** in OrcaSlicer Nightly. See the plugin guide for permissions and the current path-entry workflow.
+
 ### Backend only (Python + FastAPI)
 
 ```bash

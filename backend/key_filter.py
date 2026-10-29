@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
-from models import ClampEvent, KeyDropEvent
+from core_models import ClampEvent, KeyDropEvent
 
 # Keys that represent a speed (mm/s) or acceleration (mm/s^2) ceiling. The
 # actual numeric ceiling comes from the U1 reference profile at runtime, not

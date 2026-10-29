@@ -11,6 +11,10 @@ from __future__ import annotations
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
+from core_models import ConversionSettings as CoreConversionSettings
+
+# Keep these runtime structures dependency-free. This module remains the
+# web-facing Pydantic schema, while converter modules import core_models.
 
 
 # -------- request options ----------------------------------------------------
@@ -33,6 +37,9 @@ class ConversionSettings(BaseModel):
     slot_map: dict[int, int] = Field(default_factory=dict)
     # Insert M600 pauses when a physical toolhead must swap filament mid-print.
     insert_swap_pauses: bool = False
+
+    def to_core(self) -> CoreConversionSettings:
+        return CoreConversionSettings(**self.model_dump())
 
 
 # -------- diff events --------------------------------------------------------

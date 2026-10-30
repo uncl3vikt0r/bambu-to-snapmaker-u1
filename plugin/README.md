@@ -2,7 +2,7 @@
 
 This is an offline Script plugin for OrcaSlicer Nightly. The generated installable file embeds the converter modules, ten U1 reference projects and five filament tuning rules. It declares no pip dependencies and makes no network or subprocess calls.
 
-The plugin opens a modal HTML window for paths and conversion options. It uses OrcaSlicer's `create_window(..., style=WINDOW_MODAL, on_submit=...)` API, not the removed `show_dialog` API. Orca's plugin UI does not expose a native file picker, so copy each full path in Explorer with Shift+right-click → **Copy as path** and paste it into the dialog.
+The plugin opens an HTML window with a file picker. The selected 3MF is passed to the existing converter in chunks; the converted project is downloaded by Orca's embedded browser. The plugin uses the `create_window` / `postMessage` host UI API and leaves the conversion algorithm unchanged.
 
 ## Build
 
@@ -18,10 +18,10 @@ The output is `plugin/snapmaker_u1_converter/SnapmakerU1Converter.py`.
 
 1. In OrcaSlicer Nightly, open **File → Plugins → Install local plugin**.
 2. Select `SnapmakerU1Converter.py` and activate the plugin.
-3. Open **File → Plugins**, expand **Snapmaker U1 Project Converter**, then click **Run**. In the dialog, paste the source path, select a U1 profile and conversion options, and click **Convert**. The output defaults to `converted_<source name>.3mf` beside the source; you can enter a different output path. Orca may ask for file access.
+3. Open **File → Plugins**, expand **Snapmaker U1 Project Converter**, then click **Run**. Select a 3MF file, choose a U1 profile and conversion options, click **Конвертировать и скачать**, then click **Скачать** when conversion finishes. The browser saves `converted_<source name>.3mf` to its configured download folder. You can pin the script in Speed Dial with **Space**, search for the converter, then press **Ctrl+B**.
 4. Open the converted project in Snapmaker Orca and slice it again before printing.
 
-The output must differ from the source; conversion never overwrites the source file. Bundled reference profiles are cached in the plugin's Orca data folder, and conversion runs inside the plugin execution context so Orca's file-access prompts apply to the selected source and output paths.
+The original file is never modified. Bundled reference profiles and temporary conversion files are kept in the plugin's Orca data folder; the temporary files are removed after conversion.
 
 ## Layout
 
